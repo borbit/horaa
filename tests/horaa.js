@@ -22,14 +22,34 @@
 	THE SOFTWARE.
 */
 
-var horaa = require('horaa');
+var horaa = require('../lib/horaa');
 
-exports.testReplace = function(test) {
+exports.testReplaceWhenModuleNameIsGiven = function(test) {
 	
 	var os = require('os');
 	var realValue = os.type();
 
 	var osHoraa = horaa('os');
+
+	osHoraa.hijack('type', function() {
+		return 'pissek';
+	});
+
+	test.ok(os.type() == 'pissek');
+
+	osHoraa.restore('type');
+
+	test.ok(os.type() == realValue);
+
+	test.done();
+};
+
+exports.testReplaceWhenModuleObjectIsGiven = function(test) {
+
+	var os = require('os');
+	var realValue = os.type();
+
+	var osHoraa = horaa(os);
 	osHoraa.hijack('type', function() {
 		return 'pissek';
 	});
