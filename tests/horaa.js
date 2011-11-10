@@ -25,64 +25,65 @@
 var horaa = require('../lib/horaa');
 
 exports.testReplaceWhenModuleNameIsGiven = function(test) {
-	
-	var os = require('os');
-	var realValue = os.type();
 
+    var os = require('os');
 	var osHoraa = horaa('os');
 
 	osHoraa.hijack('type', function() {
 		return 'pissek';
 	});
 
-	test.ok(os.type() == 'pissek');
-
-	osHoraa.restore('type');
-
-	test.ok(os.type() == realValue);
-
+	test.equal(os.type(), 'pissek');
 	test.done();
 };
 
 exports.testReplaceWhenModuleObjectIsGiven = function(test) {
 
-	var os = require('os');
-	var realValue = os.type();
-
-	var osHoraa = horaa(os);
+    var os = require('os');
+	var osHoraa = horaa(require('os'));
+    
 	osHoraa.hijack('type', function() {
 		return 'pissek';
 	});
 
-	test.ok(os.type() == 'pissek');
-
-	osHoraa.restore('type');
-
-	test.ok(os.type() == realValue);
-
+	test.equal(os.type(), 'pissek');
 	test.done();
 };
 
-exports.testReplaceTwice = function(test) {
-	
+exports.testRestore = function(test) {
+
+    var os = require('os');
+	var realValue = os.type();
+
+	var osHoraa = horaa('os');
+
+	osHoraa.hijack('type', function() {
+		return 'pissek';
+	});
+
+	osHoraa.restore('type');
+
+	test.equal(os.type(), realValue);
+	test.done();
+};
+
+exports.testRestoreAfterReplacingTwice = function(test) {
+
 	var os = require('os');
 	var realValue = os.type();
 
 	var osHoraa = horaa('os');
+
 	osHoraa.hijack('type', function() {
 		return 'pissek';
 	});
-	test.ok(os.type() == 'pissek');
-
 	osHoraa.hijack('type', function() {
 		return 'modayek';
 	});
-	test.ok(os.type() == 'modayek');
 
 	osHoraa.restore('type');
 
-	test.ok(os.type() == realValue);
-
+	test.equal(os.type(), realValue);
 	test.done();
 };
 
@@ -92,6 +93,7 @@ exports.testHijackNotExistingMethod = function(test) {
 	var realValue = os.type();
 
 	var osHoraa = horaa('os');
+            ;
 	test.throws(function() {
 		osHoraa.hijack('dsds', function() {});
 	});
@@ -105,28 +107,10 @@ exports.testRestoreNotHijackedMethod = function(test) {
 	var realValue = os.type();
 
 	var osHoraa = horaa('os');
+    
 	test.throws(function() {
 		osHoraa.restore('dsds');
 	});
-
-	test.done();
-};
-
-exports.testWithoutObjectCreation = function(test) {
-	
-	var os = require('os');
-	var realValue = os.type();
-
-	var osHoraa = horaa('os');
-	horaa('os').hijack('type', function() {
-		return 'pissek';
-	});
-
-	test.ok(os.type() == 'pissek');
-
-	horaa('os').restore('type');
-
-	test.ok(os.type() == realValue);
 
 	test.done();
 };
